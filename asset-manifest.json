@@ -1,0 +1,10 @@
+{
+  "files": {
+    "main.js": "/blockchain-github.io/static/js/main.594e1f7e.js",
+    "index.html": "/blockchain-github.io/index.html",
+    "main.594e1f7e.js.map": "/blockchain-github.io/static/js/main.594e1f7e.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.594e1f7e.js"
+  ]
+}
