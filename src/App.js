@@ -1,53 +1,135 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
-// Import Components
-import Dashboard from './components/Dashboard';
-import RecipeManager from './components/RecipeManager';
-import InventoryTracker from './components/InventoryTracker';
-import FinancialAnalytics from './components/FinancialAnalytics';
-import MenuBuilder from './components/MenuBuilder';
-import Authentication from './components/Authentication';
+// Import AuthProvider and useAuth
+import { AuthProvider, useAuth } from './context/AuthContext';
 
+// Import components
+import LandingPage from './pages/LandingPage';
+import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+import RecipeManager from './pages/RecipeManager';
+import InventoryTracker from './pages/InventoryTracker';
+import FinancialAnalytics from './pages/FinancialAnalytics';
+import MenuBuilder from './pages/MenuBuilder';
+
+// Custom Theme
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#2196f3', // Bright blue
+      main: '#2196f3', // Vibrant blue
+      light: '#64b5f6',
+      dark: '#1976d2',
     },
     secondary: {
       main: '#f50057', // Vibrant pink
+      light: '#ff4081',
+      dark: '#c51162',
     },
     background: {
       default: '#f4f4f4',
-      paper: '#ffffff'
-    }
+      paper: '#ffffff',
+    },
+    text: {
+      primary: '#333333',
+      secondary: '#666666',
+    },
   },
   typography: {
-    fontFamily: 'Roboto, Arial, sans-serif',
-    h1: {
-      fontSize: '2.5rem',
-      fontWeight: 600
-    }
-  }
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    h2: {
+      fontWeight: 700,
+    },
+    h4: {
+      fontWeight: 600,
+    },
+  },
+  overrides: {
+    MuiButton: {
+      root: {
+        textTransform: 'none',
+        borderRadius: '8px',
+      },
+      containedPrimary: {
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        '&:hover': {
+          boxShadow: '0 6px 8px rgba(0, 0, 0, 0.15)',
+        },
+      },
+    },
+  },
 });
+
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, checkAuthStatus } = useAuth();
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Authentication />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/recipes" element={<RecipeManager />} />
-          <Route path="/inventory" element={<InventoryTracker />} />
-          <Route path="/financials" element={<FinancialAnalytics />} />
-          <Route path="/menu" element={<MenuBuilder />} />
-        </Routes>
-      </Router>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router basename="/restaurantmanagement-github.io">
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/recipes" 
+              element={
+                <ProtectedRoute>
+                  <RecipeManager />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/inventory" 
+              element={
+                <ProtectedRoute>
+                  <InventoryTracker />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/financials" 
+              element={
+                <ProtectedRoute>
+                  <FinancialAnalytics />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/menu" 
+              element={
+                <ProtectedRoute>
+                  <MenuBuilder />
+                </ProtectedRoute>
+              } 
+            />
+          </Routes>
+        </Router>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 
